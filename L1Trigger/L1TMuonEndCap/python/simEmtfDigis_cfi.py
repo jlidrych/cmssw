@@ -17,7 +17,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     FWConfig = cms.bool(True),
 
     # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
-    Era = cms.string('Run2_2018'),
+    Era = cms.string('Run3_2021'),
 
     # New Run 3 CSC TPs using CCLUT algorithm
     UseRun3CCLUT_OTMB = cms.bool(False),
