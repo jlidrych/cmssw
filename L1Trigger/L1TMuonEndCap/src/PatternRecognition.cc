@@ -273,6 +273,8 @@ bool PatternRecognition::is_zone_empty(int zone,
   int izone = zone - 1;
   int num_conv_hits = 0;
   int num_patts = 0;
+  int num_me1_hits = 0;
+  int num_ge1_hits = 0;
 
   std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it = extended_conv_hits.begin();
   std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_end = extended_conv_hits.end();
@@ -290,9 +292,17 @@ bool PatternRecognition::is_zone_empty(int zone,
 
       //      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
       //  continue;  // Don't use GEM hits for pattern formation
-
-      if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
-        num_conv_hits += 1;
+      if ((conv_hits_it->Zone_code() & (1 << izone)) && (conv_hits_it->Station() != 1 || (conv_hits_it->Station() == 1 && (abs(conv_hits_it->Eta()) > 2.1 || abs(conv_hits_it->Eta()) < 1.6)))) {  // hit belongs to this zone and in GEM eta coverage
+	num_conv_hits += 1;
+      }
+      if ((conv_hits_it->Zone_code() & (1 << izone)) && (conv_hits_it->Station() == 1 && (abs(conv_hits_it->Eta()) < 2.1 && abs(conv_hits_it->Eta()) > 1.6))){
+	if (conv_hits_it->Subsystem() == L1TMuon::kCSC)
+	  num_me1_hits++;
+	if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
+	  num_ge1_hits++;
+	if (num_me1_hits > 0 && num_ge1_hits > 0){
+	  num_conv_hits += 1;
+	}
       }
     }  // end loop over conv_hits
   }    // end loop over extended_conv_hits
@@ -313,6 +323,15 @@ void PatternRecognition::make_zone_image(int zone,
                                          const std::deque<EMTFHitCollection>& extended_conv_hits,
                                          PhiMemoryImage& image) const {
   int izone = zone - 1;
+  std::vector<unsigned int> me1_bits;
+  std::vector<unsigned int> ge1_bits;
+  me1_bits.clear();
+  ge1_bits.clear();
+
+  std::vector<unsigned int> me1_layers;
+  std::vector<unsigned int> ge1_layers;
+  me1_layers.clear();
+  ge1_layers.clear();
 
   std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it = extended_conv_hits.begin();
   std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_end = extended_conv_hits.end();
@@ -327,11 +346,35 @@ void PatternRecognition::make_zone_image(int zone,
 
       //      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
       //  continue;  // Don't use GEM hits for pattern formation
-
-      if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
+      if ((conv_hits_it->Zone_code() & (1 << izone)) && (conv_hits_it->Station() != 1 || (conv_hits_it->Station() == 1 && (abs(conv_hits_it->Eta()) > 2.1 || abs(conv_hits_it->Eta()) < 1.6)))) {  // hit belongs to this zone
         unsigned int layer = conv_hits_it->Station() - 1;
         unsigned int bit = conv_hits_it->Zone_hit();
         image.set_bit(layer, bit);
+      }
+      else if ((conv_hits_it->Zone_code() & (1 << izone)) && (conv_hits_it->Station() == 1 && (abs(conv_hits_it->Eta()) < 2.1 && abs(conv_hits_it->Eta()) > 1.6))){
+	if (conv_hits_it->Subsystem() == L1TMuon::kCSC){
+	  me1_layers.push_back(conv_hits_it->Station() - 1);
+	  me1_bits.push_back(conv_hits_it->Zone_hit());
+	}
+	if (conv_hits_it->Subsystem() == L1TMuon::kGEM){
+	  ge1_layers.push_back(conv_hits_it->Station() - 1);
+	  ge1_bits.push_back(conv_hits_it->Zone_hit());
+	}
+	if (me1_layers.size() > 0 && ge1_layers.size() > 0){
+	  bool matched_me1_ge1 = false;
+	  for (std::vector<unsigned int>::size_type i=0; i < me1_layers.size(); i++){
+	    unsigned int layer = me1_layers.at(i);
+	    unsigned int bit = me1_bits.at(i);
+
+	    for (std::vector<unsigned int>::size_type j=0; j < ge1_layers.size(); j++){
+	      if (layer == ge1_layers.at(j) && abs(int(bit-ge1_bits.at(j))) < 5)
+		matched_me1_ge1 = true;
+	    }
+	    if (matched_me1_ge1){
+	      image.set_bit(layer, bit);
+	    }
+	  }
+	}
       }
     }  // end loop over conv_hits
   }    // end loop over extended_conv_hits
