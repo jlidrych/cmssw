@@ -113,7 +113,7 @@ void PtAssignmentEngineDxy::preprocessing_dxy(const EMTFTrack& track, emtf::Feat
   fr_1 = data.fr[0];
 
   // RPC hit in station
-  rpc_1 = (st1 ? (pat1 == 0) : 0);
+  rpc_1 = (st1 ? (pat1 == 0 && fr_1 == 0) : 0);
   rpc_2 = (st2 ? (pat2 == 0) : 0);
   rpc_3 = (st3 ? (pat3 == 0) : 0);
   rpc_4 = (st4 ? (pat4 == 0) : 0);

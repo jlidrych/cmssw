@@ -288,8 +288,8 @@ bool PatternRecognition::is_zone_empty(int zone,
       if (conv_hits_it->Subsystem() == L1TMuon::kRPC)
         continue;  // Don't use RPC hits for pattern formation
 
-      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
-        continue;  // Don't use GEM hits for pattern formation
+      //      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
+      //  continue;  // Don't use GEM hits for pattern formation
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
         num_conv_hits += 1;
@@ -325,8 +325,8 @@ void PatternRecognition::make_zone_image(int zone,
       if (conv_hits_it->Subsystem() == L1TMuon::kRPC)
         continue;  // Don't use RPC hits for pattern formation
 
-      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
-        continue;  // Don't use GEM hits for pattern formation
+      //      if (conv_hits_it->Subsystem() == L1TMuon::kGEM)
+      //  continue;  // Don't use GEM hits for pattern formation
 
       if (conv_hits_it->Zone_code() & (1 << izone)) {  // hit belongs to this zone
         unsigned int layer = conv_hits_it->Station() - 1;
