@@ -43,7 +43,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     RPCEnable = cms.bool(True),   # Use clustered RPC hits from CPPF in track-building
     IRPCEnable = cms.bool(False),
     CPPFEnable = cms.bool(False), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits
-    GEMEnable = cms.bool(False),  # Use hits from GEMs in track-building
+    GEMEnable = cms.bool(True),  # Use hits from GEMs in track-building
     ME0Enable = cms.bool(False),
 
     # BX
