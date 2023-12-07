@@ -73,7 +73,7 @@ process.onlineSiStripQualityProducer = cms.ESProducer("SiStripQualityESProducer"
        )),
    UseEmptyRunInfo = cms.bool(False),
    ReduceGranularity = cms.bool(False),
-#   ThresholdForReducedGranularity = cms.double(0.3)
+   ThresholdForReducedGranularity = cms.double(0.3)
 )
 
 #-------------------------------------------------
