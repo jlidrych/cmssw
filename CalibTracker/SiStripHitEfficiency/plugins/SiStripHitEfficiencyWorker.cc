@@ -156,16 +156,30 @@ private:
   struct EffTkMap {
     EffTkMap() : hTotal(nullptr), hFound(nullptr) {}
     EffTkMap(std::unique_ptr<TkHistoMap>&& total, std::unique_ptr<TkHistoMap>&& found)
-        : hTotal(std::move(total)), hFound(std::move(found)) {}
+      : hTotal(std::move(total)), hFound(std::move(found)) {}
+
+    EffTkMap(EffTkMap&& other) noexcept
+      : hTotal(std::move(other.hTotal)), hFound(std::move(other.hFound)) {}
+
+    EffTkMap& operator=(EffTkMap&& other) noexcept {
+      hTotal = std::move(other.hTotal);
+      hFound = std::move(other.hFound);
+      return *this;
+    }
+
+    EffTkMap(const EffTkMap&) = delete;
+    EffTkMap& operator=(const EffTkMap&) = delete;
 
     void fill(uint32_t id, bool found, float weight = 1.) {
+      std::lock_guard<std::mutex> guard(mutex_);
       hTotal->fill(id, weight);
       if (found) {
         hFound->fill(id, weight);
       }
     }
 
-    bool check(uint32_t id) {
+    bool check(uint32_t id) const {
+      std::lock_guard<std::mutex> guard(mutex_);
       if (hTotal->getValue(id) < hFound->getValue(id)) {
         return false;
       } else {
@@ -174,6 +188,8 @@ private:
     }
 
     std::unique_ptr<TkHistoMap> hTotal, hFound;
+    private:
+      mutable std::mutex mutex_;
   };
 
   MonitorElement *h_bx, *h_instLumi, *h_PU;
